@@ -1,0 +1,17 @@
+1.	Read input file line by line, skip comments after # and grab rules, facts=, and queries?.
+	Each rule should be a std:vector<pair<string, string>> for later tree building.
+	First being conditions and second being results. 
+
+2.	We will have operands + | ^ !, parensetheses ( ), args A-Z, and implies => or <=>.
+
+3.	For all parentheses, we will build an AST to deal with it.
+
+4.	For any rules that have more than 1 condition, any two conditions would be connected by sharing a parent -- the operand between the 2 conditions.
+
+5.	Use recursive to solve the true/false for each tree root node. 
+
+6.	Use a stack-like vector to build AST.
+
+7.	We can use a std::vector<int> to save the state of facts.
+
+8.	After reading the input and processing facts, we ask user if she would like to modify some facts or just leave the program. To modify facts, each time we would show all rules and the current state of each fact.
