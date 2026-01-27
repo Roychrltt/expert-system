@@ -17,26 +17,32 @@
 # define ERASE = "\033[2K\r"
 # define RESET "\033[0m"
 
+# define TRUE 1
+# define FALSE 2
+# define UNCERTAIN 3
+
+struct Expr
+{
+	char op;
+	char var;
+	Expr* left;
+	Expr* right;
+	Expr (char o = 0, char v = 0, Expr* l = nullptr, Expr* r = nullptr): op(o), var(v), left(l), right(r) {}
+};
+
+struct Rule {
+	Expr* expr;
+	char result;
+	Rule (Expr* e = nullptr, char r = 0): expr(e), result(r) {}
+};
+
 
 // ---------------------------- print --------------------------
-void	printUsage(void);
-void	printGrid(const std::vector<int>& grid, size_t n);
-void	printMoves(const std::vector<int>& originGrid, const std::string& move);
-void	printSolution(unsigned long long int cnt, unsigned long long int mx, const std::string& move);
 
-// ---------------------------- input --------------------------
-void	readFile(const std::string &filename);
-void	generateRandomPuzzle(int n, std::vector<int> &grid);
-
-// ---------------------------- heuristics --------------------------
-int		manhattan(const std::vector<int>& state, const std::vector<std::pair<int, int>>& pos, int n);
-int		linearConflict(const std::vector<int>& state, const std::vector<std::pair<int, int>>& pos, int n);
-int		hamming(const std::vector<int>& state, const std::vector<std::pair<int, int>>& pos, int n, const std::vector<int>& goal);
-int		chebyshev(const std::vector<int>& state, const std::vector<std::pair<int, int>>& pos, int n);
-int		euclidean(const std::vector<int>& state, const std::vector<std::pair<int, int>>& pos, int n);
-
-// ---------------------------- helper --------------------------
-std::vector<int>	makeGoal(int n);
-std::string			encode(const std::vector<int>& state);
-int					parityPermutation(const std::vector<int>& grid);
-bool				check(const std::vector<int>& grid, const std::vector<int>& goal, int n);
+// ---------------------------- utiles --------------------------
+bool				isOp(char c);
+int					precedence(char op);
+std::vector<char>	tokenize(const std::string& s);
+std::vector<char>	shuntingYard(const std::vector<char>& tokens);
+Expr*				buildAstFromRpn(const std::vector<char>& rpn);
+bool				evalExpr(Expr* e);

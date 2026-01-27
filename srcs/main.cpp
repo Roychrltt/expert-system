@@ -1,5 +1,9 @@
 #include "../include/expertSystem.hpp"
 
+static std::vector<int> state(26);
+static std::vector<int> memo(26);
+static std::vector<Rule> rules;
+static std::map<char, std::vector<int>> producers;
 
 void orInConclusion(const std::string& line)
 {
@@ -14,26 +18,98 @@ void contradiction(char c)
 	exit(1);
 }
 
-void printResult(const std::vector<int>& state, const std::string& query)
+bool solveChar(char v);
+bool evalExpr(Expr* e)
 {
-	for (char c : query)
+	if (e == nullptr) return false;
+	switch (e->op) {
+		case 0:
+			return solveChar(e->var);
+			break;
+		case '!':
+			return !evalExpr(e->left);
+			break;
+		case '+':
+			return evalExpr(e->left) && evalExpr(e->right);
+			break;
+		case '|':
+			return evalExpr(e->left) || evalExpr(e->right);
+			break;
+		case '^':
+			return evalExpr(e->left) ^ evalExpr(e->right);
+			break;
+		default:
+			return false;
+	}
+}
+
+bool solveChar(char v)
+{
+	if (state[v - 'A'] == 1) { memo[v - 'A'] = TRUE; return true; }
+	int st = 0;
+	if (memo[v - 'A']) st = memo[v - 'A'];
+	if (st == TRUE) return true;
+	if (st == FALSE || st == UNCERTAIN) return false;
+	memo[v - 'A'] = UNCERTAIN;
+	bool result = false;
+	if (producers.find(v) != producers.end())
 	{
-		if (state[c - 'A'] == 1) std::cout << c << " is true" << std::endl;
-		else if (state[c - 'A'] == -1) std::cout << c << " is false" << std::endl;
+		for (int idx : producers[v])
+		{
+			Rule* r = &rules[idx];
+			if (r->expr == nullptr) continue;
+			if (evalExpr(r->expr)) { result = true; break; }
+		}
+	}
+	memo[v - 'A'] = result ? TRUE : FALSE;
+	return result;
+}
+
+void printResult(void)
+{
+	for (int i = 0; i < 26; i++)
+	{
+		memo.clear();
+		char c = 'A' + (char)i;
+		solveChar(c);
+		if (memo[i] == TRUE) std::cout << c << " is true" << std::endl;
+		else if (memo[i] == FALSE) std::cout << c << " is false" << std::endl;
 		else std::cout << c << " is unknown" << std::endl;
+	}
+}
+
+void printUsage(void)
+{
+	std::cerr << RED << "Error: wrong number of arguments." << RESET << std::endl;
+	std::cerr << "Usage: ./expert_system <input_file>" << std::endl;
+	exit(1);
+}
+
+static void addRule(const std::string& con, const std::string& res)
+{
+	auto parseSide = [&](const std::string& s) -> Expr*
+	{
+		std::vector<char> tokens = tokenize(s);
+		std::vector<char> rpn = shuntingYard(tokens);
+		return buildAstFromRpn(rpn);
+	};
+
+	Expr* ast = parseSide(con);
+	for (char c : res)
+	{
+		if (c >= 'A' && c <= 'Z')
+		{
+			rules.emplace_back(ast, c);
+			producers[c].push_back((int)rules.size() - 1);
+		}
 	}
 }
 
 int main(int ac, char** av)
 {
-	if (ac != 2)
-	{
-		std::cerr << RED << "Error: wrong number of arguments." << RESET << std::endl;
-		std::cerr << "Usage: ./expert_system <input_file>" << std::endl;
-		return 0;
-	}
-	std::string input = av[1];
+	if (ac != 2) printUsage();
 
+	std::string input = av[1];
 	std::ifstream file(input);
 	if (!file.is_open())
 	{
@@ -41,8 +117,6 @@ int main(int ac, char** av)
 		exit(1);
 	}
 
-	std::string truth, query;
-	std::vector<std::pair<std::string, std::string>> rules;
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -50,69 +124,32 @@ int main(int ac, char** av)
 		if (pos != std::string::npos) line = line.substr(0, pos);
 		if (line.empty()) continue;
 
-		if (line[0] == '=') truth = line.substr(1);
-		else if (line[0] == '?') query = line.substr(1);
+		if (line[0] == '=')
+		{
+			for (size_t i = 1; i < line.size(); i++)
+				state[line[i] - 'A'] = 1;
+		}
+		else if (line[0] == '?') continue;
 		else
 		{
-			size_t p = line.find('=');
-			std::string con = line.substr(0, p - 1);
-			std::string res = line.substr(p + 2);
+			pos = line.find("=>");
+			std::string con = line.substr(0, pos - 1);
+			std::string res = line.substr(pos + 2);
 
 			if (res.find('|') != std::string::npos || res.find('(') != std::string::npos)
 				orInConclusion(line);
-			rules.emplace_back(con, res);
+			addRule(con, res);
 
-			if (line[p - 1] == '<')
+			if (line[pos - 1] == '<')
 			{
 				if (con.find('|') != std::string::npos || con.find('(') != std::string::npos)
 					orInConclusion(line);
-				rules.emplace_back(res, con);
+				addRule(res, con);
 			}
 		}
 	}
-	std::vector<int> state(26);
-	for (char c : truth) state[c - 'A'] = 1;
-	auto evaluate = [&](this auto&& evaluate, const std::string& rule) -> bool
-	{
-
-	};
-	bool flag = false;
-	while (flag)
-	{
-		flag = false;
-		for (const auto& [con, res])
-		{
-			if (evalueste(con))
-			{
-				std::string word;
-				std::stringstream ss(res);
-				while (ss >> word)
-				{
-					if (word.length() == 1 && word[0] >= 'A' && word[0] <= 'Z')
-					{
-						char c = word[0] - 'A';
-						if (state[c] == 0)
-						{
-							flag = true;
-							state[c] = 1;
-						}
-						else if (state[c] == -1) contradiction(c);
-					}
-					else if (word[0] == '!' && word[1] >= 'A' && word[1] <= 'Z')
-					{
-						char c = word[1] - 'A';
-						if (state[c] == 0)
-						{
-							flag = true;
-							state[c] = -1;
-						}
-						else if (state[c] == 1) contradiction(c);
-					}
-				}
-			}
-		}
-		if (!flag) break;
-	}
-	printResult(state, query);
+	std::copy(state.begin(), state.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << std::endl;
+	printResult();
 	__Made in France__
 }
