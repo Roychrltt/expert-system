@@ -1,6 +1,6 @@
 #include "../include/expertSystem.hpp"
 
-static std::vector<int> state(26);
+static std::vector<int> facts(26);
 static std::vector<int> memo(26);
 static std::vector<Rule> rules;
 static std::map<char, std::vector<int>> producers;
@@ -19,7 +19,7 @@ void contradiction(char c)
 }
 
 bool solveChar(char v);
-bool evalExpr(Expr* e)
+/*bool evalExpr(Expr* e)
 {
 	if (e == nullptr) return false;
 	switch (e->op) {
@@ -41,11 +41,21 @@ bool evalExpr(Expr* e)
 		default:
 			return false;
 	}
+}*/
+bool evalExpr(Expr* e)
+{
+	if (e == nullptr) return false;
+	else if (!(e->op)) return solveChar(e->var);
+	else if (e->op == '!') return !evalExpr(e->left);
+	else if (e->op == '+') return evalExpr(e->left) && evalExpr(e->right);
+	else if (e->op == '|') return evalExpr(e->left) || evalExpr(e->right);
+	else if (e->op == '^') return evalExpr(e->left) ^ evalExpr(e->right);
+	else return false;
 }
 
 bool solveChar(char v)
 {
-	if (state[v - 'A'] == 1) { memo[v - 'A'] = TRUE; return true; }
+	if (facts[v - 'A'] == 1) { memo[v - 'A'] = TRUE; return true; }
 	int st = 0;
 	if (memo[v - 'A']) st = memo[v - 'A'];
 	if (st == TRUE) return true;
@@ -72,9 +82,10 @@ void printResult(void)
 		memo.clear();
 		char c = 'A' + (char)i;
 		solveChar(c);
-		if (memo[i] == TRUE) std::cout << c << " is true" << std::endl;
-		else if (memo[i] == FALSE) std::cout << c << " is false" << std::endl;
-		else std::cout << c << " is unknown" << std::endl;
+		if (memo[i] == TRUE) std::cout << c << " is true\t";
+		else if (memo[i] == FALSE) std::cout << c << " is false\t";
+		else std::cout << c << " is unknown\t";
+		if (c == 'G' || c == 'N' || c == 'T' || c == 'Z') std::cout << std::endl;
 	}
 }
 
@@ -127,7 +138,7 @@ int main(int ac, char** av)
 		if (line[0] == '=')
 		{
 			for (size_t i = 1; i < line.size(); i++)
-				state[line[i] - 'A'] = 1;
+				facts[line[i] - 'A'] = 1;
 		}
 		else if (line[0] == '?') continue;
 		else
@@ -148,8 +159,20 @@ int main(int ac, char** av)
 			}
 		}
 	}
-	std::copy(state.begin(), state.end(), std::ostream_iterator<int>(std::cout, " "));
-	std::cout << std::endl;
 	printResult();
+	std::string q;
+	while (1)
+	{
+		std::cout << YELLOW << "Would you like to change some facts to recheck the results? Y/N" << RESET << std::endl;
+		if (!std::getline(std::cin, q)) break;
+		if (!q.empty() && (q[0] == 'Y' || q[0] == 'y'))
+		{
+			std::cout << YELLOW << "Which fact would you like to change?" << RESET << std::endl;
+			std::string f;
+			if (!std::getline(std::cin, f)) break;
+			std::cout << GREEN << "State of fact " << f << " has been changed." << RESET << std::endl;
+		}
+		else break;
+	}
 	__Made in France__
 }

@@ -1,5 +1,5 @@
 1.	Read input file line by line, skip comments after # and grab rules, facts=, and queries?.
-	Each rule should be a std:vector<pair<string, string>> for later tree building.
+	Each rule should be a std:vector<RULE>.
 	First being conditions and second being results. 
 
 2.	We will have operands + | ^ !, parensetheses ( ), args A-Z, and implies => or <=>.
