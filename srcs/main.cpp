@@ -1,47 +1,12 @@
 #include "../include/expertSystem.hpp"
 
 static std::vector<int> facts(26);
-static std::vector<int> memo(26);
+std::vector<int> memo;
 static std::vector<Rule> rules;
 static std::map<char, std::vector<int>> producers;
 
-void orInConclusion(const std::string& line)
-{
-	std::cerr << RED << "Parse error: OR exists in results." << RESET << std::endl;
-	std::cerr << "Error line: " << line << std::endl;
-	exit(1);
-}
-
-void contradiction(char c)
-{
-	std::cerr << "Knowledge for fact " << c << " is contradictory. Please verify your fact base." << std::endl;
-	exit(1);
-}
-
 bool solveChar(char v);
-/*bool evalExpr(Expr* e)
-{
-	if (e == nullptr) return false;
-	switch (e->op) {
-		case 0:
-			return solveChar(e->var);
-			break;
-		case '!':
-			return !evalExpr(e->left);
-			break;
-		case '+':
-			return evalExpr(e->left) && evalExpr(e->right);
-			break;
-		case '|':
-			return evalExpr(e->left) || evalExpr(e->right);
-			break;
-		case '^':
-			return evalExpr(e->left) ^ evalExpr(e->right);
-			break;
-		default:
-			return false;
-	}
-}*/
+
 bool evalExpr(Expr* e)
 {
 	if (e == nullptr) return false;
@@ -73,27 +38,6 @@ bool solveChar(char v)
 	}
 	memo[v - 'A'] = result ? TRUE : FALSE;
 	return result;
-}
-
-void printResult(void)
-{
-	for (int i = 0; i < 26; i++)
-	{
-		memo.clear();
-		char c = 'A' + (char)i;
-		solveChar(c);
-		if (memo[i] == TRUE) std::cout << c << " is true\t";
-		else if (memo[i] == FALSE) std::cout << c << " is false\t";
-		else std::cout << c << " is unknown\t";
-		if (c == 'G' || c == 'N' || c == 'T' || c == 'Z') std::cout << std::endl;
-	}
-}
-
-void printUsage(void)
-{
-	std::cerr << RED << "Error: wrong number of arguments." << RESET << std::endl;
-	std::cerr << "Usage: ./expert_system <input_file>" << std::endl;
-	exit(1);
 }
 
 static void addRule(const std::string& con, const std::string& res)
@@ -128,6 +72,7 @@ int main(int ac, char** av)
 		exit(1);
 	}
 
+	memo.reserve(26);
 	std::string line;
 	while (std::getline(file, line))
 	{

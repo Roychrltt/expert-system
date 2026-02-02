@@ -8,7 +8,7 @@ INC = -I ./include/.
 
 SRC_DIR = ./srcs/
 	  
-SRC_FILES = main.cpp utils.cpp 
+SRC_FILES = main.cpp utils.cpp print.cpp 
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
 

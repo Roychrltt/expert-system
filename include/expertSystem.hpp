@@ -36,10 +36,16 @@ struct Rule {
 	Rule (Expr* e = nullptr, char r = 0): expr(e), result(r) {}
 };
 
+extern	std::vector<int> memo;
+bool	solveChar(char v);
 
 // ---------------------------- print --------------------------
+void	orInConclusion(const std::string& line);
+void	contradiction(char c);
+void	printResult(void);
+void	printUsage(void);
 
-// ---------------------------- utiles --------------------------
+// ---------------------------- utils --------------------------
 bool				isOp(char c);
 int					precedence(char op);
 std::vector<char>	tokenize(const std::string& s);
