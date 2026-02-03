@@ -25,15 +25,15 @@ struct Expr
 {
 	char op;
 	char var;
-	Expr* left;
-	Expr* right;
-	Expr (char o = 0, char v = 0, Expr* l = nullptr, Expr* r = nullptr): op(o), var(v), left(l), right(r) {}
+	std::shared_ptr<Expr> left;
+	std::shared_ptr<Expr> right;
+	Expr (char o = 0, char v = 0, std::shared_ptr<Expr> l = nullptr, std::shared_ptr<Expr> r = nullptr): op(o), var(v), left(l), right(r) {}
 };
 
 struct Rule {
-	Expr* expr;
+	std::shared_ptr<Expr> expr;
 	char result;
-	Rule (Expr* e = nullptr, char r = 0): expr(e), result(r) {}
+	Rule (std::shared_ptr<Expr> e = nullptr, char r = 0): expr(e), result(r) {}
 };
 
 extern	std::vector<int> memo;
@@ -50,5 +50,5 @@ bool				isOp(char c);
 int					precedence(char op);
 std::vector<char>	tokenize(const std::string& s);
 std::vector<char>	shuntingYard(const std::vector<char>& tokens);
-Expr*				buildAstFromRpn(const std::vector<char>& rpn);
-bool				evalExpr(Expr* e);
+std::shared_ptr<Expr>	buildAstFromRpn(const std::vector<char>& rpn);
+bool				evalExpr(std::shared_ptr<Expr> e);

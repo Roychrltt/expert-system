@@ -20,7 +20,6 @@ std::vector<char> tokenize(const std::string& s)
 	for (size_t i = 0; i < s.size(); i++)
 	{
 		char c = s[i];
-		if (c == ' ' || c == '\t' ) continue;
 		if ((c >= 'A' && c <= 'Z') || (isOp(c) || c == '(' || c == ')')) t.push_back(c);
 	}
 	return t;
@@ -66,28 +65,28 @@ std::vector<char> shuntingYard(const std::vector<char>& tokens)
 	return out;
 }
 
-Expr* buildAstFromRpn(const std::vector<char>& rpn)
+std::shared_ptr<Expr> buildAstFromRpn(const std::vector<char>& rpn)
 {
-	std::vector<Expr*> st;
+	std::vector<std::shared_ptr<Expr>> st;
 	for (char c : rpn)
 	{
 		if (c >= 'A' && c <= 'Z')
-			st.push_back(new Expr(0, c, nullptr, nullptr));
+			st.push_back(std::make_shared<Expr>(0, c, nullptr, nullptr));
 		else if (isOp(c))
 		{
 			if (c == '!')
 			{
-				Expr* a = nullptr;
+				std::shared_ptr<Expr> a = nullptr;
 				if (!st.empty())
 				{
 					a = st.back();
 					st.pop_back();
 				}
-				st.push_back(new Expr('!', 0, a, nullptr));
+				st.push_back(std::make_shared<Expr>('!', 0, a, nullptr));
 			}
 			else
 			{
-				Expr* b = nullptr; Expr* a = nullptr;
+				std::shared_ptr<Expr> a = nullptr, b = nullptr;
 				if (!st.empty())
 				{
 					b = st.back();
@@ -98,7 +97,7 @@ Expr* buildAstFromRpn(const std::vector<char>& rpn)
 					a = st.back();
 					st.pop_back();
 				}
-				st.push_back(new Expr(c,0,a,b));
+				st.push_back(std::make_shared<Expr>(c, 0, a, b));
 			}
 		}
 	}

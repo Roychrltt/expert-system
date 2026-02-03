@@ -17,7 +17,7 @@ void printResult(void)
 {
 	for (int i = 0; i < 26; i++)
 	{
-		memo.clear();
+		std::fill(memo.begin(), memo.end(), UNCERTAIN);
 		char c = 'A' + (char)i;
 		solveChar(c);
 		if (memo[i] == TRUE) std::cout << c << " is true\t";

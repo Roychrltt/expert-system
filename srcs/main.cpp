@@ -7,7 +7,7 @@ static std::map<char, std::vector<int>> producers;
 
 bool solveChar(char v);
 
-bool evalExpr(Expr* e)
+bool evalExpr(std::shared_ptr<Expr> e)
 {
 	if (e == nullptr) return false;
 	else if (!(e->op)) return solveChar(e->var);
@@ -42,14 +42,14 @@ bool solveChar(char v)
 
 static void addRule(const std::string& con, const std::string& res)
 {
-	auto parseSide = [&](const std::string& s) -> Expr*
+	auto parseSide = [&](const std::string& s) -> std::shared_ptr<Expr>
 	{
 		std::vector<char> tokens = tokenize(s);
 		std::vector<char> rpn = shuntingYard(tokens);
 		return buildAstFromRpn(rpn);
 	};
 
-	Expr* ast = parseSide(con);
+	std::shared_ptr<Expr> ast = parseSide(con);
 	for (char c : res)
 	{
 		if (c >= 'A' && c <= 'Z')
@@ -72,7 +72,7 @@ int main(int ac, char** av)
 		exit(1);
 	}
 
-	memo.reserve(26);
+	memo.resize(26);
 	std::string line;
 	while (std::getline(file, line))
 	{
