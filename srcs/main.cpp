@@ -1,9 +1,10 @@
 #include "../include/expertSystem.hpp"
 
-static std::vector<int> facts(26);
+static std::vector<int> facts(26, UNCERTAIN);
 std::vector<int> memo;
 static std::vector<Rule> rules;
-static std::map<char, std::vector<int>> producers;
+static std::map<char, std::vector<int>> yesproducers, noproducers;
+static std::vector<char> contras(26);
 
 bool solveChar(char v);
 
@@ -20,24 +21,33 @@ bool evalExpr(std::shared_ptr<Expr> e)
 
 bool solveChar(char v)
 {
-	if (facts[v - 'A'] == 1) { memo[v - 'A'] = TRUE; return true; }
-	int st = 0;
-	if (memo[v - 'A']) st = memo[v - 'A'];
-	if (st == TRUE) return true;
-	if (st == FALSE || st == UNCERTAIN) return false;
-	memo[v - 'A'] = UNCERTAIN;
-	bool result = false;
-	if (producers.find(v) != producers.end())
+	if (facts[v - 'A'] == TRUE) { memo[v - 'A'] = TRUE; return true; }
+	if (facts[v - 'A'] == FALSE) { memo[v - 'A'] = FALSE; return false; }
+	if (memo[v - 'A'] == TRUE) return true;
+	if (memo[v - 'A'] == FALSE) return false;
+	bool yes = false, no = false;
+	if (yesproducers.find(v) != yesproducers.end())
 	{
-		for (int idx : producers[v])
+		for (int idx : yesproducers[v])
 		{
 			Rule* r = &rules[idx];
 			if (r->expr == nullptr) continue;
-			if (evalExpr(r->expr)) { result = true; break; }
+			if (evalExpr(r->expr)) { yes = true; break; }
 		}
 	}
-	memo[v - 'A'] = result ? TRUE : FALSE;
-	return result;
+	if (noproducers.find(v) != noproducers.end())
+	{
+		for (int idx : noproducers[v])
+		{
+			Rule* r = &rules[idx];
+			if (r->expr == nullptr) continue;
+			if (evalExpr(r->expr)) { no = true; break; }
+		}
+	}
+	if (yes && no) contras[v - 'A'] = 1;
+	if (yes) memo[v - 'A'] = TRUE;
+	else if (no) memo[v - 'A'] = FALSE;
+	return yes;
 }
 
 static void addRule(const std::string& con, const std::string& res)
@@ -50,13 +60,39 @@ static void addRule(const std::string& con, const std::string& res)
 	};
 
 	std::shared_ptr<Expr> ast = parseSide(con);
-	for (char c : res)
+	for (size_t i = 0; i < res.size(); i++)
 	{
-		if (c >= 'A' && c <= 'Z')
+		char c = res[i];
+		if (c >= 'A' && c <= 'Z' && i && res[i - 1] == '!')
 		{
 			rules.emplace_back(ast, c);
-			producers[c].push_back((int)rules.size() - 1);
+			noproducers[c].push_back((int)rules.size() - 1);
 		}
+		else if (c >= 'A' && c <= 'Z')
+		{
+			rules.emplace_back(ast, c);
+			yesproducers[c].push_back((int)rules.size() - 1);
+		}
+	}
+}
+
+void printResult(void)
+{
+	for (int i = 0; i < 26; i++)
+	{
+		std::fill(memo.begin(), memo.end(), UNCERTAIN);
+		char c = 'A' + static_cast<char>(i);
+		solveChar(c);
+		if (facts[i] == UNCERTAIN && memo[i] == TRUE) facts[c - 'A'] = memo[c - 'A'];
+		if (memo[i] == TRUE) std::cout << c << " is true\t";
+		else if (memo[i] == FALSE) std::cout << c << " is false\t";
+		else std::cout << c << " is unknown\t";
+		if (c == 'G' || c == 'N' || c == 'T' || c == 'Z') std::cout << std::endl;
+	}
+	for (int i = 0; i < 26; i++)
+	{
+		char c = 'A' + static_cast<char>(i);
+		if (contras[i]) std::cout << RED << "[WARNING] Conditions for fact " << c << " is contradictory. State of fact set to true." << RESET << std::endl;
 	}
 }
 
@@ -83,7 +119,7 @@ int main(int ac, char** av)
 		if (line[0] == '=')
 		{
 			for (size_t i = 1; i < line.size(); i++)
-				facts[line[i] - 'A'] = 1;
+				facts[line[i] - 'A'] = TRUE;
 		}
 		else if (line[0] == '?') continue;
 		else
@@ -115,7 +151,16 @@ int main(int ac, char** av)
 			std::cout << YELLOW << "Which fact would you like to change?" << RESET << std::endl;
 			std::string f;
 			if (!std::getline(std::cin, f)) break;
+			if (!isalpha(f[0]))
+			{
+				std::cout << RED << "Input not valid." << RESET << std::endl;
+				continue;
+			}
+			char c = static_cast<char>(toupper(static_cast<unsigned char>(f[0])));
 			std::cout << GREEN << "State of fact " << f << " has been changed." << RESET << std::endl;
+			if (facts[c - 'A'] != TRUE) facts[c - 'A'] = TRUE;
+			else facts[c - 'A'] = FALSE;
+			printResult();
 		}
 		else break;
 	}
