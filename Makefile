@@ -59,6 +59,7 @@ clean:
 fclean: clean
 	printf "$(ERASE)$(GREEN)Fcleaning up...$(RESET)"
 	$(RM) ${NAME}
+	$(RM) ${TEST_NAME}
 	printf "$(ERASE)🧼 $(GREEN)Fclean finished! 🧼\n$(RESET)"
 
 re: fclean all
