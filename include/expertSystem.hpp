@@ -43,6 +43,7 @@ void	printResult(void);
 void	printUsage(void);
 
 // ---------------------------- utils --------------------------
+std::string			trimLine(const std::string& line);
 bool				isOp(char c);
 int					precedence(char op);
 std::vector<char>	tokenize(const std::string& s);

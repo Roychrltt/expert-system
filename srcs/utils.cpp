@@ -1,5 +1,13 @@
 #include "../include/expertSystem.hpp"
 
+std::string trimLine(const std::string& line)
+{
+	if (line.empty()) return "";
+	size_t i = 0;
+	while (i < line.size() && (line[i] == ' ' || line[i] == '\t')) i++;
+	return line.substr(i);
+}
+
 bool isOp(char c)
 {
 	return c == '!' || c == '+' || c == '|' || c == '^';

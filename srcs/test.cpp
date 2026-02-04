@@ -3,6 +3,7 @@
 static std::string init;
 static std::vector<int> facts(26, UNCERTAIN);
 static std::vector<int> memo(26);
+static std::vector<int> vis(26);
 static std::vector<Rule> rules;
 static std::map<char, std::vector<int>> yesproducers, noproducers;
 static std::vector<char> contras(26);
@@ -48,10 +49,13 @@ int evalExpr(std::shared_ptr<Expr> e)
 
 int	solveChar(char v)
 {
-	if (facts[v - 'A'] == TRUE) { memo[v - 'A'] = TRUE; return true; }
-	if (facts[v - 'A'] == FALSE) { memo[v - 'A'] = FALSE; return false; }
-	if (memo[v - 'A'] == TRUE) return true;
-	if (memo[v - 'A'] == FALSE) return false;
+	int i = v - 'A';
+	if (vis[i]) return memo[i];
+	vis[i] = 1;
+	if (facts[i] == TRUE) { memo[i] = TRUE; return TRUE; }
+	if (facts[i] == FALSE) { memo[i] = FALSE; return FALSE; }
+	if (memo[i] == TRUE) return TRUE;
+	if (memo[i] == FALSE) return FALSE;
 	bool yes = false, no = false;
 	if (yesproducers.find(v) != yesproducers.end())
 	{
@@ -71,10 +75,10 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { no = true; break; }
 		}
 	}
-	if (yes && no) contras[v - 'A'] = 1;
-	if (yes) memo[v - 'A'] = TRUE;
-	else if (no) memo[v - 'A'] = FALSE;
-	return memo[v - 'A'];
+	if (yes && no) contras[i] = 1;
+	if (yes) memo[i] = TRUE;
+	else if (no) memo[i] = FALSE;
+	return memo[i];
 }
 
 static void addRule(const std::string& con, const std::string& res)
@@ -119,6 +123,7 @@ int main(int ac, char** av)
 	std::string tocheck;
 	while (std::getline(file, line))
 	{
+		line = trimLine(line);
 		size_t pos = line.find('#');
 		if (pos != std::string::npos) line = line.substr(0, pos);
 		if (line.empty()) continue;
@@ -152,10 +157,12 @@ int main(int ac, char** av)
 			}
 		}
 	}
+	std::sort(tocheck.begin(), tocheck.end());
 	std::string res = "?";
 	for (char c : tocheck)
 	{
 		std::fill(memo.begin(), memo.end(), UNCERTAIN);
+		std::fill(vis.begin(), vis.end(), 0);
 		solveChar(c);
 		int i = c - 'A';
 		if (facts[i] == UNCERTAIN && memo[i] != UNCERTAIN) facts[i] = memo[i];
