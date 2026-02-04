@@ -71,8 +71,6 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { no = true; break; }
 		}
 	}
-	std::cout << "Solving " << v << std::endl;
-	std::cout << std::boolalpha << yes << " " << no << std::endl;
 	if (yes && no) contras[v - 'A'] = 1;
 	if (yes) memo[v - 'A'] = TRUE;
 	else if (no) memo[v - 'A'] = FALSE;
@@ -105,26 +103,6 @@ static void addRule(const std::string& con, const std::string& res)
 	}
 }
 
-void printResult(void)
-{
-	for (int i = 0; i < 26; i++)
-	{
-		std::fill(memo.begin(), memo.end(), UNCERTAIN);
-		char c = 'A' + static_cast<char>(i);
-		solveChar(c);
-		if (facts[i] == UNCERTAIN && memo[i] != UNCERTAIN) facts[c - 'A'] = memo[c - 'A'];
-		if (memo[i] == TRUE) std::cout << c << " is true\t";
-		else if (memo[i] == FALSE) std::cout << c << " is false\t";
-		else std::cout << c << " is unknown\t";
-		if (c == 'G' || c == 'N' || c == 'T' || c == 'Z') std::cout << std::endl;
-	}
-	for (int i = 0; i < 26; i++)
-	{
-		char c = 'A' + static_cast<char>(i);
-		if (contras[i]) std::cout << RED << "[WARNING] Conditions for fact " << c << " is contradictory. State of fact set to true." << RESET << std::endl;
-	}
-}
-
 int main(int ac, char** av)
 {
 	if (ac != 2) printUsage();
@@ -138,9 +116,9 @@ int main(int ac, char** av)
 	}
 
 	std::string line;
+	std::string tocheck;
 	while (std::getline(file, line))
 	{
-		std::cout << line << std::endl;
 		size_t pos = line.find('#');
 		if (pos != std::string::npos) line = line.substr(0, pos);
 		if (line.empty()) continue;
@@ -151,7 +129,11 @@ int main(int ac, char** av)
 			for (size_t i = 1; i < line.size(); i++)
 				facts[line[i] - 'A'] = TRUE;
 		}
-		else if (line[0] == '?') continue;
+		else if (line[0] == '?')
+		{
+			tocheck = line.substr(1);
+			continue;
+		}
 		else
 		{
 			pos = line.find("=>");
@@ -170,41 +152,15 @@ int main(int ac, char** av)
 			}
 		}
 	}
-	printResult();
-	std::string q;
-	while (1)
+	std::string res = "?";
+	for (char c : tocheck)
 	{
-		std::cout << YELLOW << "Current initial facts: " << init << RESET << std::endl;
-		std::cout << YELLOW << "Would you like to change some initial facts to recheck the results? Y/N" << RESET << std::endl;
-		if (!std::getline(std::cin, q)) break;
-		if (!q.empty() && (q[0] == 'Y' || q[0] == 'y'))
-		{
-			std::cout << YELLOW << "Which facts would you like to change?" << RESET << std::endl;
-			std::string f;
-			if (!std::getline(std::cin, f) || f.empty()) break;
-			for (char &c : f)
-			{
-				if (!isalpha(c))
-				{
-					std::cout << RED << "Input not valid." << RESET << std::endl;
-					continue;
-				}
-				c = static_cast<char>(toupper(static_cast<unsigned char>(c)));
-			}
-			std::vector<int> v(26);
-			for (char c : init) v[c - 'A'] = 1;
-			for (char c : f) v[c - 'A'] ^= 1;
-			std::string tmp = "";
-			for (int i = 0; i < 26; i++)
-				if (v[i]) tmp += static_cast<char>('A' + i);
-			init = tmp;
-			std::cout << GREEN << "Current initial facts: " << init << RESET << std::endl;
-			std::fill(facts.begin(), facts.end(), UNCERTAIN);
-			for (int i = 0; i < 26; i++)
-				if (v[i]) facts[i] = TRUE;
-			printResult();
-		}
-		else break;
+		std::fill(memo.begin(), memo.end(), UNCERTAIN);
+		solveChar(c);
+		int i = c - 'A';
+		if (facts[i] == UNCERTAIN && memo[i] != UNCERTAIN) facts[i] = memo[i];
+		if (memo[i] == TRUE) res += c;
 	}
+	std::cout << res << std::endl;
 	__Made in France__
 }

@@ -36,9 +36,6 @@ struct Rule {
 	Rule (std::shared_ptr<Expr> e = nullptr, char r = 0): expr(e), result(r) {}
 };
 
-extern	std::vector<int> memo;
-bool	solveChar(char v);
-
 // ---------------------------- print --------------------------
 void	orInConclusion(const std::string& line);
 void	contradiction(char c);
@@ -51,4 +48,4 @@ int					precedence(char op);
 std::vector<char>	tokenize(const std::string& s);
 std::vector<char>	shuntingYard(const std::vector<char>& tokens);
 std::shared_ptr<Expr>	buildAstFromRpn(const std::vector<char>& rpn);
-bool				evalExpr(std::shared_ptr<Expr> e);
+int					evalExpr(std::shared_ptr<Expr> e);
