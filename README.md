@@ -99,20 +99,19 @@ The system will infer whether `E` is true based on the rule chain.
 
 ## Testing
 
-    Run tests to verify correctness:
+Run tests to verify correctness:
 
-    ```bash
-    make test
-    ```
+```bash
+make test
+```
 
-    Test cases should cover:
+Test cases should cover:
 
-    * Simple inference
-    * Multi‑step reasoning
-    * Conflicting rules
-    * Edge cases (missing facts, circular dependencies)
+* Simple inference
+* Multi‑step reasoning
+* Conflicting rules
+* Edge cases (missing facts, circular dependencies)
 
-    ---
 
 ## LICENSE
 
