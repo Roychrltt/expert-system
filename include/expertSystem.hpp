@@ -38,8 +38,6 @@ struct Rule {
 
 // ---------------------------- print --------------------------
 void	orInConclusion(const std::string& line);
-void	contradiction(char c);
-void	printResult(void);
 void	printUsage(void);
 
 // ---------------------------- utils --------------------------
@@ -49,4 +47,3 @@ int					precedence(char op);
 std::vector<char>	tokenize(const std::string& s);
 std::vector<char>	shuntingYard(const std::vector<char>& tokens);
 std::shared_ptr<Expr>	buildAstFromRpn(const std::vector<char>& rpn);
-int					evalExpr(std::shared_ptr<Expr> e);

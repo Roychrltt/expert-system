@@ -7,12 +7,6 @@ void orInConclusion(const std::string& line)
 	exit(1);
 }
 
-void contradiction(char c)
-{
-	std::cerr << "Knowledge for fact " << c << " is contradictory. Please verify your fact base." << std::endl;
-	exit(1);
-}
-
 void printUsage(void)
 {
 	std::cerr << RED << "Error: wrong number of arguments." << RESET << std::endl;
