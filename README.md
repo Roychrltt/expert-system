@@ -6,7 +6,6 @@ This project implements an **expert system** designed to simulate the decision�
 
 The goal of this project is to demonstrate knowledge representation, logical reasoning, and automated problem solving using symbolic AI techniques.
 
----
 
 ## Features
 
@@ -16,7 +15,6 @@ The goal of this project is to demonstrate knowledge representation, logical rea
 * Conflict resolution strategy
 * Modular and extensible architecture
 
----
 
 ## How It Works
 
@@ -48,7 +46,6 @@ This project uses backward chaining.
 
 Allows users to change initial facts without modifying the input file during runtime so the system can recheck conclusions.
 
----
 
 ## System Architecture
 
@@ -64,7 +61,6 @@ Main responsibilities:
 * Executing rule logic
 * Producing final output and explanations
 
----
 
 ## Installation
 
@@ -75,7 +71,6 @@ cd expert-system
 make
 ```
 
----
 
 ## Usage
 
@@ -101,20 +96,6 @@ D = true
 ```
 
 The system will infer whether `E` is true based on the rule chain.
-
----
-
-## Project Structure
-
-```
-.
-    ├── src/            # Source files
-    ├── include/        # Headers (if applicable)
-    ├── tests/          # Test cases
-    └── Makefile
-    ```
-
----
 
 ## Testing
 
