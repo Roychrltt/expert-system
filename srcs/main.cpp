@@ -75,8 +75,6 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { no = true; break; }
 		}
 	}
-	//std::cout << "Solving " << v << std::endl;
-	//std::cout << std::boolalpha << yes << " " << no << std::endl;
 	if (yes && no) contras[i] = 1;
 	if (yes) memo[i] = TRUE;
 	else if (no) memo[i] = FALSE;
@@ -111,6 +109,7 @@ static void addRule(const std::string& con, const std::string& res)
 
 void printResult(void)
 {
+	std::fill(contras.begin(), contras.end(), 0);
 	for (int i = 0; i < 26; i++)
 	{
 		std::fill(memo.begin(), memo.end(), UNCERTAIN);
