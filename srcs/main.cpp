@@ -75,9 +75,13 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { no = true; break; }
 		}
 	}
-	if (yes && no) contras[i] = 1;
-	if (yes) memo[i] = TRUE;
-	else if (no) memo[i] = FALSE;
+	if (yes && no)
+	{
+		contras[i] = 1;
+		memo[i] = UNCERTAIN;
+	}
+	else if (yes && !no) memo[i] = TRUE;
+	else if (!yes && no) memo[i] = FALSE;
 	return memo[i];
 }
 
@@ -125,7 +129,7 @@ void printResult(void)
 	for (int i = 0; i < 26; i++)
 	{
 		char c = 'A' + static_cast<char>(i);
-		if (contras[i]) std::cout << RED << "[WARNING] Conditions for fact " << c << " is contradictory. State of fact set to true." << RESET << std::endl;
+		if (contras[i]) std::cout << RED << "[WARNING] Conditions for fact " << c << " is contradictory. State of fact set to uncertain." << RESET << std::endl;
 	}
 }
 

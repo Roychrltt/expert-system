@@ -6,7 +6,6 @@ static std::vector<int> memo(26);
 static std::vector<int> vis(26);
 static std::vector<Rule> rules;
 static std::map<char, std::vector<int>> yesproducers, noproducers;
-static std::vector<char> contras(26);
 
 int solveChar(char v);
 
@@ -75,9 +74,8 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { no = true; break; }
 		}
 	}
-	if (yes && no) contras[i] = 1;
-	if (yes) memo[i] = TRUE;
-	else if (no) memo[i] = FALSE;
+	if (yes && !no) memo[i] = TRUE;
+	else if (no && !yes) memo[i] = FALSE;
 	return memo[i];
 }
 
