@@ -39,6 +39,8 @@ struct Rule {
 // ---------------------------- print --------------------------
 void	orInConclusion(const std::string& line);
 void	printUsage(void);
+void	printHello(void);
+void	printGoodbye(void);
 
 // ---------------------------- utils --------------------------
 std::string			trimLine(const std::string& line);

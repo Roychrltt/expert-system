@@ -113,6 +113,7 @@ static void addRule(const std::string& con, const std::string& res)
 
 void printResult(void)
 {
+	std::cout << BLUE << BOLD << "\nState of facts after reasoning:" << RESET << std::endl;
 	std::fill(contras.begin(), contras.end(), 0);
 	for (int i = 0; i < 26; i++)
 	{
@@ -145,6 +146,9 @@ int main(int ac, char** av)
 		return 1;
 	}
 
+	printHello();
+	std::cout << YELLOW << BOLD << "Below is the input file:" << RESET << std::endl;
+	std::cout << std::endl;
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -183,12 +187,13 @@ int main(int ac, char** av)
 	std::string q;
 	while (1)
 	{
-		std::cout << YELLOW << "Current initial facts: " << init << RESET << std::endl;
-		std::cout << YELLOW << "Would you like to change some initial facts to recheck the results? Y/N" << RESET << std::endl;
+		std::cout << BOLD << GREEN << "Current initial facts: " << init << RESET << std::endl;
+		std::cout << BOLD << YELLOW << "Would you like to change some initial facts to recheck the results? Y/N" << std::endl;
+		std::cout << "(True facts will be set to uncertain and others will be set to true)" << RESET << std::endl;
 		if (!std::getline(std::cin, q)) break;
 		if (!q.empty() && (q[0] == 'Y' || q[0] == 'y'))
 		{
-			std::cout << YELLOW << "Which facts would you like to change?" << RESET << std::endl;
+			std::cout << BOLD << YELLOW << "Which facts would you like to change?" << RESET << std::endl;
 			std::string f;
 			if (!std::getline(std::cin, f) || f.empty()) break;
 			for (char &c : f)
@@ -207,7 +212,6 @@ int main(int ac, char** av)
 			for (int i = 0; i < 26; i++)
 				if (v[i]) tmp += static_cast<char>('A' + i);
 			init = tmp;
-			std::cout << GREEN << "Current initial facts: " << init << RESET << std::endl;
 			std::fill(facts.begin(), facts.end(), UNCERTAIN);
 			for (int i = 0; i < 26; i++)
 				if (v[i]) facts[i] = TRUE;
@@ -215,5 +219,6 @@ int main(int ac, char** av)
 		}
 		else break;
 	}
+	printGoodbye();
 	__Made in France__
 }
