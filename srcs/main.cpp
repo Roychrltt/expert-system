@@ -59,7 +59,7 @@ int	solveChar(char v)
 	bool yes = false, no = false;
 	if (yesproducers.find(v) != yesproducers.end())
 	{
-		for (intid x : yesproducers[v])
+		for (int idx : yesproducers[v])
 		{
 			Rule* r = &rules[idx];
 			if (r->expr == nullptr) continue;
