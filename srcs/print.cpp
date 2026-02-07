@@ -44,4 +44,5 @@ void printGoodbye()
     std::cout << "  Thank you for using the Expert System  \n";
     std::cout << "        Have a wonderful day ✨          \n";
     std::cout << "========================================\n";
+	std::cout << RESET << std::endl;
 }
