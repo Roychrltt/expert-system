@@ -2,9 +2,8 @@
 
 void orInConclusion(const std::string& line)
 {
-	std::cerr << RED << "Parse error: OR exists in results." << RESET << std::endl;
+	std::cerr << RED << "Parse error: OR / XOR exists in results." << RESET << std::endl;
 	std::cerr << "Error line: " << line << std::endl;
-	exit(1);
 }
 
 void printUsage(void)

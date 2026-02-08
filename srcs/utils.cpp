@@ -9,7 +9,7 @@ std::string trimLine(const std::string& line)
 
 static bool beforeNeg(char c)
 {
-	return c == '(' || c == '+' || c == '|' || c == '^';
+	return c == '(' || c == '+' || c == '|' || c == '^' || c == '>';
 }
 static bool allowed(char c)
 {
@@ -36,6 +36,8 @@ bool checkLine(const std::string& line)
 		char c = line[i];
 		if (!allowed(c)) return false;
 		if (i && c == '!' && !beforeNeg(line[i - 1])) return false;
+		if (i && c >= 'A' && c <= 'Z' && !isOp(line[i - 1]) && line[i - 1] != '>' && line[i - 1] != '(') return false;
+		if (i && (c == '+' || c == '^' || c == '|') && (line[i - 1] == '+' || line[i - 1] == '|' || line[i - 1] == '^' || line[i - 1] == '>')) return false;
 		if (c == '<' && (i == n - 1 || line[i + 1] != '=')) return false;
 		if (c == '=')
 		{

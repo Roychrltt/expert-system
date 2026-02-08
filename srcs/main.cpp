@@ -63,6 +63,7 @@ int	solveChar(char v)
 			if (evalExpr(r->expr) == TRUE) { yes = true; break; }
 		}
 	}
+	if (yes) memo[i] = TRUE;
 	if (noproducers.find(v) != noproducers.end())
 	{
 		for (int idx : noproducers[v])
@@ -174,15 +175,27 @@ int main(int ac, char** av)
 			pos = line.find("=>");
 			std::string con = line.substr(0, pos);
 			std::string res = line.substr(pos + 2);
+			if (con.back() == '<') con.pop_back();
+			if (!checkLine(res) || !checkLine(con))
+			{
+				std::cerr << RED << "Parse error in input file" << RESET << std::endl;
+				return 0;
+			}
 
-			if (res.find('|') != std::string::npos || res.find('(') != std::string::npos)
+			if (res.find('|') != std::string::npos || res.find('(') != std::string::npos || res.find('^') != std::string::npos)
+			{
 				orInConclusion(line);
+				return 0;
+			}
 			addRule(con, res);
 
 			if (line[pos - 1] == '<')
 			{
-				if (con.find('|') != std::string::npos || con.find('(') != std::string::npos)
+				if (con.find('|') != std::string::npos || con.find('(') != std::string::npos || con.find('^') != std::string::npos)
+				{
 					orInConclusion(line);
+					return 0;
+				}
 				addRule(res, con);
 			}
 		}
