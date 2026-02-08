@@ -1,7 +1,7 @@
 #include "../include/expertSystem.hpp"
 
 static std::string init;
-static std::vector<int> facts(26, UNCERTAIN);
+static std::vector<int> facts(26, FALSE);
 static std::vector<int> memo(26);
 static std::vector<int> vis(26);
 static std::vector<Rule> rules;
@@ -51,12 +51,9 @@ int	solveChar(char v)
 	int i = v - 'A';
 	if (vis[i]) return memo[i];
 	vis[i] = 1;
-	if (facts[i] == TRUE) { memo[i] = TRUE; return TRUE; }
-	if (facts[i] == FALSE) { memo[i] = FALSE; return FALSE; }
-	if (memo[i] == TRUE) return TRUE;
-	if (memo[i] == FALSE) return FALSE;
 	bool yes = false, no = false;
-	if (yesproducers.find(v) != yesproducers.end())
+	if (facts[i] == TRUE || memo[i] == TRUE) yes = true;
+	if (!yes && yesproducers.find(v) != yesproducers.end())
 	{
 		for (int idx : yesproducers[v])
 		{
@@ -76,6 +73,7 @@ int	solveChar(char v)
 	}
 	if (yes && !no) memo[i] = TRUE;
 	else if (no && !yes) memo[i] = FALSE;
+	else if (yes && no) memo[i] = UNCERTAIN;
 	return memo[i];
 }
 
@@ -140,7 +138,7 @@ int main(int ac, char** av)
 		else
 		{
 			pos = line.find("=>");
-			std::string con = line.substr(0, pos - 1);
+			std::string con = line.substr(0, pos);
 			std::string res = line.substr(pos + 2);
 
 			if (res.find('|') != std::string::npos || res.find('(') != std::string::npos)
@@ -159,11 +157,11 @@ int main(int ac, char** av)
 	std::string res = "?";
 	for (char c : tocheck)
 	{
-		std::fill(memo.begin(), memo.end(), UNCERTAIN);
+		std::fill(memo.begin(), memo.end(), FALSE);
 		std::fill(vis.begin(), vis.end(), 0);
 		solveChar(c);
 		int i = c - 'A';
-		if (facts[i] == UNCERTAIN && memo[i] != UNCERTAIN) facts[i] = memo[i];
+		if (facts[i] == FALSE && memo[i] != FALSE) facts[i] = memo[i];
 		if (memo[i] == TRUE) res += c;
 	}
 	std::cout << res << std::endl;

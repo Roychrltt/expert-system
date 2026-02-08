@@ -2,10 +2,50 @@
 
 std::string trimLine(const std::string& line)
 {
-	if (line.empty()) return "";
-	size_t i = 0;
-	while (i < line.size() && (line[i] == ' ' || line[i] == '\t')) i++;
-	return line.substr(i);
+	std::string ans = "";
+	for (char c : line) if (c != ' ' && c != '\t') ans.push_back(c);
+	return ans;
+}
+
+static bool beforeNeg(char c)
+{
+	return c == '(' || c == '+' || c == '|' || c == '^';
+}
+static bool allowed(char c)
+{
+	std::string s = "!|+<=>^()";
+	if (s.find(c) == std::string::npos && !(c >= 'A' && c <= 'Z')) return false;
+	return true;
+}
+
+bool checkLine(const std::string& line)
+{
+	if (line.empty()) return true;
+	size_t n = line.size();
+	if (line[0] == '<' || line[0] == '>' || line[0] == '|' || line[0] == '^' || line[0] == '+' || line[0] == ')') return false;
+	if (line[0] == '=' || line[0] == '?')
+	{
+		for (size_t i = 1; i < n; i++)
+			if (line[i] < 'A' || line[i] > 'Z') return false;
+		return true;
+	}
+	int cnt = 0;
+	int p = 0;
+	for (size_t i = 0; i < n; i++)
+	{
+		char c = line[i];
+		if (!allowed(c)) return false;
+		if (i && c == '!' && !beforeNeg(line[i - 1])) return false;
+		if (c == '<' && (i == n - 1 || line[i + 1] != '=')) return false;
+		if (c == '=')
+		{
+			if (++cnt > 1) return false;
+			if (i == n - 1 || (i && line[i + 1] != '>')) return false;
+		}
+		if (c == '(') p++;
+		if (c == ')' && --p < 0) return false;
+	}
+	return p ? false : true;
 }
 
 bool isOp(char c)

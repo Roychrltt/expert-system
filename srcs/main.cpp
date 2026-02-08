@@ -1,7 +1,7 @@
 #include "../include/expertSystem.hpp"
 
 static std::string init;
-static std::vector<int> facts(26, UNCERTAIN);
+static std::vector<int> facts(26, FALSE);
 static std::vector<int> memo(26);
 static std::vector<int> vis(26);
 static std::vector<Rule> rules;
@@ -52,12 +52,9 @@ int	solveChar(char v)
 	int i = v - 'A';
 	if (vis[i]) return memo[i];
 	vis[i] = 1;
-	if (facts[i] == TRUE) { memo[i] = TRUE; return TRUE; }
-	if (facts[i] == FALSE) { memo[i] = FALSE; return FALSE; }
-	if (memo[i] == TRUE) return TRUE;
-	if (memo[i] == FALSE) return FALSE;
 	bool yes = false, no = false;
-	if (yesproducers.find(v) != yesproducers.end())
+	if (facts[i] == TRUE || memo[i] == TRUE) yes = true;
+	if (!yes && yesproducers.find(v) != yesproducers.end())
 	{
 		for (int idx : yesproducers[v])
 		{
@@ -117,11 +114,11 @@ void printResult(void)
 	std::fill(contras.begin(), contras.end(), 0);
 	for (int i = 0; i < 26; i++)
 	{
-		std::fill(memo.begin(), memo.end(), UNCERTAIN);
+		std::fill(memo.begin(), memo.end(), FALSE);
 		std::fill(vis.begin(), vis.end(), 0);
 		char c = 'A' + static_cast<char>(i);
 		solveChar(c);
-		if (facts[i] == UNCERTAIN && memo[i] != UNCERTAIN) facts[c - 'A'] = memo[c - 'A'];
+		if (facts[i] == FALSE && memo[i] != FALSE) facts[c - 'A'] = memo[c - 'A'];
 		if (memo[i] == TRUE) std::cout << c << " is true\t";
 		else if (memo[i] == FALSE) std::cout << c << " is false\t";
 		else std::cout << c << " is unknown\t";
@@ -150,6 +147,7 @@ int main(int ac, char** av)
 	std::cout << YELLOW << BOLD << "Below is the input file:" << RESET << std::endl;
 	std::cout << std::endl;
 	std::string line;
+	bool flag = false;
 	while (std::getline(file, line))
 	{
 		std::cout << line << std::endl;
@@ -157,18 +155,24 @@ int main(int ac, char** av)
 		size_t pos = line.find('#');
 		if (pos != std::string::npos) line = line.substr(0, pos);
 		if (line.empty()) continue;
+		if (!checkLine(line))
+		{
+			std::cerr << RED << "Parse error in input file" << RESET << std::endl;
+			return 0;
+		}
 
-		if (line[0] == '=')
+		if (line[0] == '=' && !flag)
 		{
 			init = line.substr(1);
 			for (size_t i = 1; i < line.size(); i++)
 				facts[line[i] - 'A'] = TRUE;
+			flag = true;
 		}
 		else if (line[0] == '?') continue;
 		else
 		{
 			pos = line.find("=>");
-			std::string con = line.substr(0, pos - 1);
+			std::string con = line.substr(0, pos);
 			std::string res = line.substr(pos + 2);
 
 			if (res.find('|') != std::string::npos || res.find('(') != std::string::npos)
@@ -189,7 +193,7 @@ int main(int ac, char** av)
 	{
 		std::cout << BOLD << GREEN << "Current initial facts: " << init << RESET << std::endl;
 		std::cout << BOLD << YELLOW << "Would you like to change some initial facts to recheck the results? Y/N" << std::endl;
-		std::cout << "(True facts will be set to uncertain and others will be set to true)" << RESET << std::endl;
+		std::cout << "(True facts will be set to false and others will be set to true)" << RESET << std::endl;
 		if (!std::getline(std::cin, q)) break;
 		if (!q.empty() && (q[0] == 'Y' || q[0] == 'y'))
 		{
