@@ -206,7 +206,7 @@ int main(int ac, char** av)
 	{
 		std::cout << BOLD << GREEN << "Current initial facts: " << init << RESET << std::endl;
 		std::cout << BOLD << YELLOW << "Would you like to change some initial facts to recheck the results? Y/N" << std::endl;
-		std::cout << "(True facts will be set to false and others will be set to true)" << RESET << std::endl;
+		std::cout << "(True facts will be set to false and others true)" << RESET << std::endl;
 		if (!std::getline(std::cin, q)) break;
 		if (!q.empty() && (q[0] == 'Y' || q[0] == 'y'))
 		{
@@ -229,7 +229,7 @@ int main(int ac, char** av)
 			for (int i = 0; i < 26; i++)
 				if (v[i]) tmp += static_cast<char>('A' + i);
 			init = tmp;
-			std::fill(facts.begin(), facts.end(), UNCERTAIN);
+			std::fill(facts.begin(), facts.end(), FALSE);
 			for (int i = 0; i < 26; i++)
 				if (v[i]) facts[i] = TRUE;
 			printResult();
