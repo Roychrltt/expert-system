@@ -97,6 +97,12 @@ D = true
 
 The system will infer whether `E` is true based on the rule chain.
 
+## Example
+
+The program prints the input file first to facilitate human checking. Next, the reasoning result for all 26 facts are printed. The user is then provided with the possibility to make changes to initial facts so as to recheck the result.
+In the following case, the conditions for C and E are contradictory, so these facts are set to unknown. We also got an error message in red.
+![example](images/example.png)
+
 ## Testing
 
 Run tests to verify correctness:
